@@ -17,6 +17,15 @@ let s:cmd_for_type = {
   \ 'PKCS7':                   'openssl pkcs7 -print_certs -text -noout',
   \ }
 
+function! s:run(cmd, input) abort
+  let l:lines = systemlist(a:cmd, a:input)
+  if v:shell_error != 0
+    echohl ErrorMsg | echom 'pem: openssl error: ' . join(l:lines, ' ') | echohl None
+    return []
+  endif
+  return l:lines
+endfunction
+
 function! s:decode_block_at_cursor() abort
   let l:begin_lnum = search('^-----BEGIN .\{-}-----$', 'bcW')
   if l:begin_lnum == 0
@@ -38,10 +47,8 @@ function! s:decode_block_at_cursor() abort
   endif
 
   let l:pem_data = join(getline(l:begin_lnum, l:end_lnum), "\n")
-  let l:lines    = systemlist(s:cmd_for_type[l:pem_type], l:pem_data)
-
-  if v:shell_error != 0
-    echohl ErrorMsg | echom 'pem: openssl error: ' . join(l:lines, ' ') | echohl None
+  let l:lines    = s:run(s:cmd_for_type[l:pem_type], l:pem_data)
+  if empty(l:lines)
     return {}
   endif
 
@@ -80,9 +87,8 @@ function! pem#DecodeAllPemBlocks() abort
   let l:pem_type = matchstr(getline(l:first_lnum), '^-----BEGIN \zs.\{-}\ze-----$')
 
   if has_key(s:all_cmd_for_type, l:pem_type)
-    let l:lines = systemlist(s:all_cmd_for_type[l:pem_type], getline(1, '$'))
-    if v:shell_error != 0
-      echohl ErrorMsg | echom 'pem: openssl error: ' . join(l:lines, ' ') | echohl None
+    let l:lines = s:run(s:all_cmd_for_type[l:pem_type], getline(1, '$'))
+    if empty(l:lines)
       return
     endif
     call s:open_output_buf(l:lines, 'PEM: all')
