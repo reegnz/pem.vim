@@ -49,7 +49,7 @@ function! s:DecodePemBlock() abort
   call setline(1, l:result)
   setlocal buftype=nofile bufhidden=wipe noswapfile nomodifiable readonly nobuflisted filetype=opensslout
   execute 'file ' . fnameescape('PEM: ' . l:pem_type)
-  nnoremap <buffer> q :bwipeout<CR>
+  nnoremap <buffer> q <Cmd>bwipeout<CR>
 endfunction
 
 command! -buffer PemDecode call <SID>DecodePemBlock()
