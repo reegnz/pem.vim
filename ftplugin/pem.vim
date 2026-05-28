@@ -7,7 +7,9 @@ if exists('b:did_ftplugin')
 endif
 let b:did_ftplugin = 1
 
-let b:undo_ftplugin = 'delcommand PemDecode | nunmap <buffer> <Plug>PemDecode'
+setlocal nomodifiable
+
+let b:undo_ftplugin = 'setlocal modifiable | delcommand PemDecode | nunmap <buffer> <Plug>PemDecode'
 
 command! -buffer PemDecode call pem#DecodePemBlock()
 
