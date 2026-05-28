@@ -9,12 +9,18 @@ let b:did_ftplugin = 1
 
 setlocal nomodifiable
 
-let b:undo_ftplugin = 'setlocal modifiable | delcommand PemDecode | nunmap <buffer> <Plug>PemDecode'
+let b:undo_ftplugin = 'setlocal modifiable | delcommand PemDecode | delcommand PemDecodeAll | nunmap <buffer> <Plug>PemDecode | nunmap <buffer> <Plug>PemDecodeAll'
 
-command! -buffer PemDecode call pem#DecodePemBlock()
+command! -buffer PemDecode    call pem#DecodePemBlock()
+command! -buffer PemDecodeAll call pem#DecodeAllPemBlocks()
 
-nnoremap <buffer> <Plug>PemDecode <Cmd>call pem#DecodePemBlock()<CR>
+nnoremap <buffer> <Plug>PemDecode    <Cmd>call pem#DecodePemBlock()<CR>
+nnoremap <buffer> <Plug>PemDecodeAll <Cmd>call pem#DecodeAllPemBlocks()<CR>
 if !hasmapto('<Plug>PemDecode', 'n')
   nmap <buffer> <localleader>d <Plug>PemDecode
   let b:undo_ftplugin .= ' | nunmap <buffer> <localleader>d'
+endif
+if !hasmapto('<Plug>PemDecodeAll', 'n')
+  nmap <buffer> <localleader>D <Plug>PemDecodeAll
+  let b:undo_ftplugin .= ' | nunmap <buffer> <localleader>D'
 endif
