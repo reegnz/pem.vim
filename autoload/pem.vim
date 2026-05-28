@@ -15,35 +15,39 @@ let s:cmd_for_type = {
 
 function! pem#DecodePemBlock() abort
   let l:save   = getcurpos()
+  let l:result = []
+  let l:pem_type = ''
+  try
+    let l:begin_lnum = search('^-----BEGIN .\{-}-----$', 'bcW')
+    if l:begin_lnum == 0
+      echohl WarningMsg | echom 'pem: no PEM block at cursor' | echohl None
+      return
+    endif
 
-  let l:begin_lnum = search('^-----BEGIN .\{-}-----$', 'bcW')
-  if l:begin_lnum == 0
-    echohl WarningMsg | echom 'pem: no PEM block at cursor' | echohl None
-    return
-  endif
+    let l:pem_type = matchstr(getline(l:begin_lnum), '^-----BEGIN \zs.\{-}\ze-----$')
 
-  let l:pem_type = matchstr(getline(l:begin_lnum), '^-----BEGIN \zs.\{-}\ze-----$')
+    let l:end_lnum = search('^-----END ' . l:pem_type . '-----$', 'W')
 
-  let l:end_lnum = search('^-----END ' . l:pem_type . '-----$', 'W')
-  call setpos('.', l:save)
+    if l:end_lnum == 0
+      echohl WarningMsg | echom 'pem: no matching END for: ' . l:pem_type | echohl None
+      return
+    endif
 
-  if l:end_lnum == 0
-    echohl WarningMsg | echom 'pem: no matching END for: ' . l:pem_type | echohl None
-    return
-  endif
+    if !has_key(s:cmd_for_type, l:pem_type)
+      echohl WarningMsg | echom 'pem: no openssl command for type: ' . l:pem_type | echohl None
+      return
+    endif
 
-  if !has_key(s:cmd_for_type, l:pem_type)
-    echohl WarningMsg | echom 'pem: no openssl command for type: ' . l:pem_type | echohl None
-    return
-  endif
+    let l:pem_data = join(getline(l:begin_lnum, l:end_lnum), "\n")
+    let l:result   = systemlist(s:cmd_for_type[l:pem_type], l:pem_data)
 
-  let l:pem_data = join(getline(l:begin_lnum, l:end_lnum), "\n")
-  let l:result   = systemlist(s:cmd_for_type[l:pem_type], l:pem_data)
-
-  if v:shell_error != 0
-    echohl ErrorMsg | echom 'pem: openssl error: ' . join(l:result, ' ') | echohl None
-    return
-  endif
+    if v:shell_error != 0
+      echohl ErrorMsg | echom 'pem: openssl error: ' . join(l:result, ' ') | echohl None
+      return
+    endif
+  finally
+    call setpos('.', l:save)
+  endtry
 
   new
   call setline(1, l:result)
