@@ -54,7 +54,7 @@ endfunction
 
 command! -buffer PemDecode call <SID>DecodePemBlock()
 
-nnoremap <buffer> <Plug>PemDecode :call <SID>DecodePemBlock()<CR>
+nnoremap <buffer> <Plug>PemDecode <Cmd>call <SID>DecodePemBlock()<CR>
 if !hasmapto('<Plug>PemDecode', 'n')
   nmap <buffer> <localleader>d <Plug>PemDecode
 endif
