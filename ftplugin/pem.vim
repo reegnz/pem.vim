@@ -52,4 +52,9 @@ function! s:DecodePemBlock() abort
   nnoremap <buffer> q :bwipeout<CR>
 endfunction
 
-nnoremap <buffer> <localleader>d :call <SID>DecodePemBlock()<CR>
+command! -buffer PemDecode call <SID>DecodePemBlock()
+
+nnoremap <buffer> <Plug>PemDecode :call <SID>DecodePemBlock()<CR>
+if !hasmapto('<Plug>PemDecode', 'n')
+  nmap <buffer> <localleader>d <Plug>PemDecode
+endif
