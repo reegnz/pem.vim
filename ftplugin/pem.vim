@@ -9,18 +9,18 @@ let b:did_ftplugin = 1
 
 setlocal nomodifiable
 
-let b:undo_ftplugin = 'setlocal modifiable | delcommand PemDecode | delcommand PemDecodeAll | nunmap <buffer> <Plug>PemDecode | nunmap <buffer> <Plug>PemDecodeAll | unlet! b:did_ftplugin'
+let b:undo_ftplugin = 'setlocal modifiable | delcommand PemDecode | delcommand PemDecodeAll | nunmap <buffer> <Plug>(pem-decode) | nunmap <buffer> <Plug>(pem-decode-all) | unlet! b:did_ftplugin'
 
 command! -buffer PemDecode    call pem#DecodePemBlock()
 command! -buffer PemDecodeAll call pem#DecodeAllPemBlocks()
 
-nnoremap <buffer> <nowait> <Plug>PemDecode    <Cmd>call pem#DecodePemBlock()<CR>
-nnoremap <buffer> <Plug>PemDecodeAll <Cmd>call pem#DecodeAllPemBlocks()<CR>
-if !hasmapto('<Plug>PemDecode', 'n')
-  nmap <buffer> <localleader>d <Plug>PemDecode
+nnoremap <buffer> <Plug>(pem-decode)     <Cmd>call pem#DecodePemBlock()<CR>
+nnoremap <buffer> <Plug>(pem-decode-all) <Cmd>call pem#DecodeAllPemBlocks()<CR>
+if !hasmapto('<Plug>(pem-decode)', 'n')
+  nmap <buffer> <localleader>d <Plug>(pem-decode)
   let b:undo_ftplugin .= ' | nunmap <buffer> <localleader>d'
 endif
-if !hasmapto('<Plug>PemDecodeAll', 'n')
-  nmap <buffer> <localleader>D <Plug>PemDecodeAll
+if !hasmapto('<Plug>(pem-decode-all)', 'n')
+  nmap <buffer> <localleader>D <Plug>(pem-decode-all)
   let b:undo_ftplugin .= ' | nunmap <buffer> <localleader>D'
 endif
